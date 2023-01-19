@@ -5,16 +5,16 @@ class AirplaneSeat {
     this.windowSeatQueue = []
     this.aileSeatQueue = []
     this.middleSeatQueue = []
-    this.seatNumber = this.calculateSeatNumber(seats)
-    this.tableSize = this.createSeatSize(seats)
-    this.fullQueue = this.analyzeQueue()
+    this.seatNumber = this._calculateSeatNumber(seats)
+    this.tableSize = this._createSeatSize(seats)
+    this.fullQueue = this._analyzeQueue()
   }
 
   _revertSeatFormat(seats) {
     return seats.map(a => [a[1], a[0]])
   }
 
-  calculateSeatNumber(seats) {
+  _calculateSeatNumber(seats) {
     let nSeat = 0
     for(let seatForm of seats) {
       nSeat += (seatForm[0] * seatForm[1])
@@ -22,7 +22,7 @@ class AirplaneSeat {
     return nSeat;
   }
 
-  createSeatSize(seats) {
+  _createSeatSize(seats) {
     let maxRow = 0;
     let maxCol = 0;
 
@@ -37,7 +37,7 @@ class AirplaneSeat {
     return [maxRow, maxCol]
   }
 
-  analyzeQueue() {
+  _analyzeQueue() {
     for(let rowIdx = 0; rowIdx < this.tableSize[0]; rowIdx++){
       let colIdxCounter = 0;
       for (let formShape of this.seats) {
@@ -55,7 +55,6 @@ class AirplaneSeat {
           }
           
           // if seat in aisle
-          // row 2 col 4
           if (colIdx == colIdxCounter || colIdx == (formColSize + colIdxCounter - 1)) {
             this.aileSeatQueue.push([rowIdx, colIdx])
             continue
@@ -68,21 +67,21 @@ class AirplaneSeat {
       }
     }
 
-    console.log('total saet created\t: ', this.aileSeatQueue.length + this.middleSeatQueue.length + this.windowSeatQueue.length)
-    console.log('Aisles seat\t: ', this.aileSeatQueue)
-    console.log('Window seat\t: ', this.windowSeatQueue)
-    console.log('Middle Seat\t: ', this.middleSeatQueue)
-    const seatList = this.aileSeatQueue.concat(this.windowSeatQueue, this.middleSeatQueue)
-    return seatList;
+    // console.log('total saet created\t: ', this.aileSeatQueue.length + this.middleSeatQueue.length + this.windowSeatQueue.length)
+    // console.log('Aisles seat\t: ', this.aileSeatQueue)
+    // console.log('Window seat\t: ', this.windowSeatQueue)
+    // console.log('Middle Seat\t: ', this.middleSeatQueue)
+    const seatQueue = this.aileSeatQueue.concat(this.windowSeatQueue, this.middleSeatQueue)
+    return seatQueue;
   }
 
-  createEmptySeats() {
+  _createEmptySeats(emptyChar='X') {
     const tableSize = this.tableSize;
     const tableSeats = []
     for(let row = 0; row < tableSize[0]; row++) {
       const rowSeats = []
       for(let col = 0; col < tableSize[1]; col++) {
-        rowSeats.push('X')
+        rowSeats.push(emptyChar)
       }
 
       tableSeats.push(rowSeats);
@@ -91,7 +90,7 @@ class AirplaneSeat {
   }
 
   drawSeatByType(){
-    const planeSeat = this.createEmptySeats()
+    const planeSeat = this._createEmptySeats()
     for (let seat of this.aileSeatQueue) {
       planeSeat[seat[0]][seat[1]] = 'A'
     }
@@ -109,16 +108,21 @@ class AirplaneSeat {
   drawSeatQueue() {
     console.log('Airplane passanger Seat Positioning by Queue')
     const seatList = this.fullQueue;
-    const planeSeat = this.createEmptySeats()
-    for(let queueIdx = 0; queueIdx < this.qLength; queueIdx++) {
+    const planeSeat = this._createEmptySeats()
+    for(let queueIdx = 0; queueIdx < seatList.length; queueIdx++) {
       const seat = seatList[queueIdx];
-      planeSeat[seat[0]][seat[1]] = queueIdx + 1;
+      if (queueIdx < this.qLength) {
+        planeSeat[seat[0]][seat[1]] = queueIdx + 1;
+      }
+      else 
+        planeSeat[seat[0]][seat[1]] = 'E';
     }
     console.table(planeSeat)
+    console.log('Number\t: queue number\nX\t: Not exist\nE\t: Empty')
   }
 
   drawSeatPositions() {
-    const planeSeat = this.createEmptySeats()
+    const planeSeat = this._createEmptySeats()
     let queueIdx = 0;
 
     const queueDict = {
@@ -129,10 +133,11 @@ class AirplaneSeat {
 
     for (const label in queueDict) {
       for (let seat of queueDict[label]) {
-        if (queueIdx >= this.qLength) {
-          break;
+        let displayLabel = 'E';
+        if (queueIdx < this.qLength) {
+          displayLabel = `${label}${queueIdx+1}`
         }
-        planeSeat[seat[0]][seat[1]] = `${label}${queueIdx+1}`
+        planeSeat[seat[0]][seat[1]] = displayLabel;
         queueIdx += 1
       }
 
