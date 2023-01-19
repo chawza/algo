@@ -7,7 +7,7 @@ class AirplaneSeat {
     this.middleSeatQueue = []
     this.seatNumber = this.calculateSeatNumber(seats)
     this.tableSize = this.createSeatSize(seats)
-    this.analyzeQueue()
+    this.fullQueue = this.analyzeQueue()
   }
 
   _revertSeatFormat(seats) {
@@ -72,6 +72,8 @@ class AirplaneSeat {
     console.log('Aisles seat\t: ', this.aileSeatQueue)
     console.log('Window seat\t: ', this.windowSeatQueue)
     console.log('Middle Seat\t: ', this.middleSeatQueue)
+    const seatList = this.aileSeatQueue.concat(this.windowSeatQueue, this.middleSeatQueue)
+    return seatList;
   }
 
   createEmptySeats() {
@@ -104,8 +106,9 @@ class AirplaneSeat {
     console.table(planeSeat)
   }
 
-  drawSeatPositions() {
-    const seatList = this.aileSeatQueue.concat(this.windowSeatQueue, this.middleSeatQueue)
+  drawSeatQueue() {
+    console.log('Airplane passanger Seat Positioning by Queue')
+    const seatList = this.fullQueue;
     const planeSeat = this.createEmptySeats()
     for(let queueIdx = 0; queueIdx < this.qLength; queueIdx++) {
       const seat = seatList[queueIdx];
@@ -114,13 +117,39 @@ class AirplaneSeat {
     console.table(planeSeat)
   }
 
+  drawSeatPositions() {
+    const planeSeat = this.createEmptySeats()
+    let queueIdx = 0;
+
+    const queueDict = {
+      'A': this.aileSeatQueue,
+      'W': this.windowSeatQueue,
+      'M': this.middleSeatQueue
+    }
+
+    for (const label in queueDict) {
+      for (let seat of queueDict[label]) {
+        if (queueIdx >= this.qLength) {
+          break;
+        }
+        planeSeat[seat[0]][seat[1]] = `${label}${queueIdx+1}`
+        queueIdx += 1
+      }
+
+      if (queueIdx >= this.qLength) {
+        break;
+      }
+    }
+
+    console.table(planeSeat)
+  }
 }
 
 function main() {
   const input = [[3,2], [4,3], [2,3], [3,4]] // col, row format
   const nQueue = 30 
   const airplaneseat = new AirplaneSeat(input, nQueue)
-  airplaneseat.drawSeatPositions()
+  airplaneseat.drawSeatQueue()
 }
 
 main()
