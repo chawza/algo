@@ -8,7 +8,6 @@ class AirplaneSeat {
     this.seatNumber = this.calculateSeatNumber(seats)
     this.tableSize = this.createSeatSize(seats)
     this.analyzeQueue()
-    this.createTableVisualization(this.qLength)
   }
 
   _revertSeatFormat(seats) {
@@ -41,13 +40,10 @@ class AirplaneSeat {
   analyzeQueue() {
     for(let rowIdx = 0; rowIdx < this.tableSize[0]; rowIdx++){
       let colIdxCounter = 0;
-      const columnSizeList = this.seats.map(a => {
-        if (rowIdx < a[0]) 
-          return a[1]
-        return 0
-      });
-      for (let formColSize of columnSizeList) {
-        if (columnSizeList == 0) {
+      for (let formShape of this.seats) {
+        let formColSize = formShape[1];
+        if (rowIdx >= formShape[0]) {
+          colIdxCounter += formColSize;
           continue
         }
         for (let formColIdx = colIdxCounter; formColIdx < formColSize + colIdxCounter; formColIdx++) {
@@ -59,6 +55,7 @@ class AirplaneSeat {
           }
           
           // if seat in aisle
+          // row 2 col 4
           if (colIdx == colIdxCounter || colIdx == (formColSize + colIdxCounter - 1)) {
             this.aileSeatQueue.push([rowIdx, colIdx])
             continue
@@ -77,43 +74,53 @@ class AirplaneSeat {
     console.log('Middle Seat\t: ', this.middleSeatQueue)
   }
 
-  _printTable(table) {
-    console.table()
-  }
-  createTableVisualization(queueNumber) {
+  createEmptySeats() {
     const tableSize = this.tableSize;
-    function createEmptySeats() {
-      const tableSeats = []
-      for(let row = 0; row < tableSize[0]; row++) {
-        const rowSeats = []
-        for(let col = 0; col < tableSize[1]; col++) {
-          rowSeats.push('X')
-        }
+    const tableSeats = []
+    for(let row = 0; row < tableSize[0]; row++) {
+      const rowSeats = []
+      for(let col = 0; col < tableSize[1]; col++) {
+        rowSeats.push('X')
+      }
 
-        tableSeats.push(rowSeats);
-      } 
-      return tableSeats
+      tableSeats.push(rowSeats);
+    } 
+    return tableSeats
+  }
+
+  drawSeatByType(){
+    const planeSeat = this.createEmptySeats()
+    for (let seat of this.aileSeatQueue) {
+      planeSeat[seat[0]][seat[1]] = 'A'
     }
+
+    for (let seat of this.windowSeatQueue) {
+      planeSeat[seat[0]][seat[1]] = 'W'
+    }
+
+    for (let seat of this.middleSeatQueue) {
+      planeSeat[seat[0]][seat[1]] = 'M'
+    }
+    console.table(planeSeat)
+  }
+
+  drawSeatPositions() {
     const seatList = this.aileSeatQueue.concat(this.windowSeatQueue, this.middleSeatQueue)
-    const planeSeat = createEmptySeats()
-    console.log(seatList)
-    // console.log(planeSeat)
-    for(let queueIdx = 0; queueIdx < queueNumber; queueIdx++) {
+    const planeSeat = this.createEmptySeats()
+    for(let queueIdx = 0; queueIdx < this.qLength; queueIdx++) {
       const seat = seatList[queueIdx];
       planeSeat[seat[0]][seat[1]] = queueIdx + 1;
     }
-
     console.table(planeSeat)
-
   }
 
 }
 
 function main() {
   const input = [[3,2], [4,3], [2,3], [3,4]] // col, row format
-  const nQueue = 24 
+  const nQueue = 30 
   const airplaneseat = new AirplaneSeat(input, nQueue)
-  // console.log(airplaneseat)
+  airplaneseat.drawSeatPositions()
 }
 
 main()
